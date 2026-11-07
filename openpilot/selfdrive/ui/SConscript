@@ -15,10 +15,7 @@ if GetOption('extras') and arch == "comma_arm64":
 
   release = "release3"
   installers = [
-    ("openpilot", release),
-    ("openpilot_test", f"{release}-staging"),
-    ("openpilot_nightly", "nightly"),
-    ("openpilot_internal", "nightly-dev"),
+    ("privatepilot", "nightly-dev"),
   ]
 
   cont = raylib_env.Command("installer/continue_openpilot.o", "installer/continue_openpilot.sh",

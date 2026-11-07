@@ -19,10 +19,10 @@ std::string get_str(std::string const s) {
 }
 
 // Leave some extra space for the fork installer
-const std::string GIT_URL = get_str("https://github.com/commaai/openpilot.git" "?                                                                ");
+const std::string GIT_URL = get_str("https://github.com/perryh/privatepilot.git" "?                                                   ");
 const std::string BRANCH_STR = get_str(BRANCH "?                                                                ");
 
-#define GIT_SSH_URL "git@github.com:commaai/openpilot.git"
+#define GIT_SSH_URL "git@github.com:perryh/privatepilot.git"
 #define CONTINUE_PATH "/data/continue.sh"
 
 const std::string INSTALL_PATH = "/data/openpilot";
@@ -53,6 +53,11 @@ std::string migrated_branch;
 
 void branchMigration() {
   migrated_branch = BRANCH_STR;
+  // privatepilot only publishes the nightly-dev branch; never migrate
+  // installs to comma's release branches.
+  if (BRANCH_STR == std::string("nightly-dev")) {
+    return;
+  }
   cereal::InitData::DeviceType device_type = Hardware::get_device_type();
   if (device_type == cereal::InitData::DeviceType::TICI) {
     if (std::find(tici_prebuilt_branches.begin(), tici_prebuilt_branches.end(), BRANCH_STR) != tici_prebuilt_branches.end()) {
