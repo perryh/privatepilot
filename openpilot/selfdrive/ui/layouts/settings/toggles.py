@@ -30,6 +30,7 @@ DESCRIPTIONS = {
   "IsMetric": tr_noop("Display speed in km/h instead of mph."),
   "RecordAudio": tr_noop("Record and store microphone audio while driving. The audio will be included in the dashcam video in comma connect."),
   "EnableUploads": tr_noop("Upload logs, telemetry, and crash data to comma. Off by default in privatepilot for privacy."),
+  "EnableLogging": tr_noop("Record logs, dashcam video, and microphone data on the device. Off by default in privatepilot for privacy."),
 }
 
 
@@ -81,6 +82,12 @@ class TogglesLayout(Widget):
         DESCRIPTIONS["EnableUploads"],
         "network.png",
         False,
+      ),
+      "EnableLogging": (
+        lambda: tr("Enable Local Logging"),
+        DESCRIPTIONS["EnableLogging"],
+        "road.png",
+        True,
       ),
       "IsMetric": (
         lambda: tr("Use Metric System"),

@@ -39,6 +39,9 @@ class TogglesLayoutMici(NavScroller):
     data_uploads = BigParamControl("data uploads", "EnableUploads",
                                    description="Upload logs, telemetry, and crash data to comma.\n" +
                                                "Off by default in privatepilot for privacy.")
+    local_logging = BigParamControl("local logging", "EnableLogging", toggle_callback=restart_needed_callback,
+                                    description="Record logs, dashcam video, and microphone data on the device.\n" +
+                                                "Off by default in privatepilot for privacy.")
 
     self._scroller.add_widgets([
       self._personality_toggle,
@@ -50,6 +53,7 @@ class TogglesLayoutMici(NavScroller):
       record_mic,
       enable_openpilot,
       data_uploads,
+      local_logging,
     ])
 
     # Toggle lists
@@ -61,6 +65,7 @@ class TogglesLayoutMici(NavScroller):
       ("RecordAudio", record_mic),
       ("OpenpilotEnabledToggle", enable_openpilot),
       ("EnableUploads", data_uploads),
+      ("EnableLogging", local_logging),
     )
 
     enable_openpilot.set_enabled(lambda: not ui_state.engaged)

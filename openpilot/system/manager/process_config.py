@@ -19,8 +19,17 @@ def iscar(started: bool, params: Params, CP: car.CarParams) -> bool:
   return started and not CP.notCar
 
 def logging(started: bool, params: Params, CP: car.CarParams) -> bool:
-  run = (not CP.notCar) or not params.get_bool("DisableLogging")
+  # privatepilot: local logging and dashcam are opt-in (PC keeps logging for dev)
+  run = (not CP.notCar) or params.get_bool("EnableLogging")
   return started and run
+
+def onroad_logging(started: bool, params: Params, CP: car.CarParams) -> bool:
+  # privatepilot: processes that only exist to write to the logs
+  return started and params.get_bool("EnableLogging")
+
+def logging_daemon(started: bool, params: Params, CP: car.CarParams) -> bool:
+  # privatepilot: log writers that run offroad too; swaglog drops messages safely when absent
+  return params.get_bool("EnableLogging")
 
 def uploads_enabled(started: bool, params: Params, CP: car.CarParams) -> bool:
   # privatepilot: uploads and telemetry are opt-in
@@ -84,15 +93,15 @@ procs = [
   uploads_daemon("manage_athenad", "openpilot.system.athena.manage_athenad", "AthenadPid"),
 
   NativeProcess("loggerd", "openpilot/system/loggerd", ["./loggerd"], logging),
-  NativeProcess("encoderd", "openpilot/system/loggerd", ["./encoderd"], only_onroad),
+  NativeProcess("encoderd", "openpilot/system/loggerd", ["./encoderd"], onroad_logging),
   NativeProcess("stream_encoderd", "openpilot/system/loggerd", ["./encoderd", "--stream"], or_(livestream, notcar)),
-  PythonProcess("logmessaged", "openpilot.system.logmessaged", always_run),
+  PythonProcess("logmessaged", "openpilot.system.logmessaged", logging_daemon),
 
   NativeProcess("camerad", "openpilot/system/camerad", ["./camerad"], or_(driverview, livestream), enabled=not WEBCAM),
   PythonProcess("webcamerad", "openpilot.system.camerad.webcam.camerad", driverview, enabled=WEBCAM),
   PythonProcess("proclogd", "openpilot.system.proclogd", only_onroad, enabled=platform.system() != "Darwin"),
   PythonProcess("journald", "openpilot.system.journald", only_onroad, platform.system() != "Darwin"),
-  PythonProcess("micd", "openpilot.system.micd", iscar),
+  PythonProcess("micd", "openpilot.system.micd", and_(iscard, logging)),
   PythonProcess("timed", "openpilot.system.timed", always_run, enabled=not PC),
 
   PythonProcess("modeld", "openpilot.selfdrive.modeld.modeld", only_onroad),

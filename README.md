@@ -14,11 +14,18 @@ privatepilot tracks upstream openpilot closely and changes as little as possible
 
 ### What's different from upstream
 
-Upstream openpilot uploads logs, crash data, and telemetry to comma's servers. privatepilot flips that default:
+Upstream openpilot uploads logs, crash data, and telemetry to comma's servers, and records logs and dashcam video on the device. privatepilot flips both defaults:
 
-- **No uploads by default.** The `uploader` and `athenad` (telemetry) processes don't run. All data collection still happens locally, so debugging, dashcam, and replay work normally.
+- **No uploads by default.** The `uploader` and `athenad` (telemetry) processes don't run.
+- **No local logging by default.** `loggerd`, `encoderd`, and mic recording don't run — no logs, no dashcam video, no audio, no slog files. The device is an offline ADAS box.
 - **No device registration.** privatepilot never contacts comma's registration server; the device identity is read from local storage only.
-- **Opt-in toggle.** "Enable Data Uploads" in settings (under Toggles) restores stock upload behavior at any time, no restart needed.
+- **Kept for debugging:** crash dumps and the system journal still land on disk.
+- **Opt-in toggles.** In settings (under Toggles):
+  - **Enable Local Logging** — restores dashcam and on-device logs (requires an openpilot restart).
+  - **Enable Data Uploads** — restores stock upload behavior (live, no restart).
+- **GPS assistance** still fetches ephemeris for fast GPS locks; it's a token-based fetch, not driving data.
+
+The trade-off, stated plainly: with the defaults, an incident produces no dashcam footage, and a misbehaving drive leaves nothing to inspect. Enable Local Logging if you want that back.
 
 What still contacts the network (only if you use the feature): OTA updates (from this repo), navigation, GPS assistance, and any comma services you explicitly enable along with data uploads.
 
@@ -39,7 +46,7 @@ Updates install automatically from the `nightly-dev` branch of this repo, same a
 ### For maintainers
 
 `master` tracks `commaai/openpilot:master` plus a small patch series:
-- `EnableUploads` param (off by default) + process gating in `system/manager/process_config.py`
+- `EnableUploads` and `EnableLogging` params (both off by default) + process gating in `system/manager/process_config.py`
 - early-exit guards in `system/athena/athenad.py` and `system/loggerd/uploader.py`
 - registration without network in `system/athena/registration.py`
 - settings toggle in both UIs, custom installer, this README
