@@ -1029,6 +1029,9 @@ def main(exit_event: threading.Event | None = None):
     cloudlog.exception("failed to set core affinity")
 
   params = Params()
+  if not params.get_bool("EnableUploads"):
+    cloudlog.info("athenad not starting: data uploads disabled")
+    return
   dongle_id = params.get("DongleId")
   UploadQueueCache.initialize(upload_queue)
 

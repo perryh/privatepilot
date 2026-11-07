@@ -40,6 +40,15 @@ def register(show_spinner=False) -> str | None:
     with open(Paths.persist_root()+"/comma/dongle_id") as f:
       dongle_id = f.read().strip()
 
+  # privatepilot: with data uploads disabled, never contact the registration
+  # server; use the local device identity only.
+  if not params.get_bool("EnableUploads"):
+    if dongle_id is None:
+      dongle_id = UNREGISTERED_DONGLE_ID
+    params.put("DongleId", dongle_id, block=True)
+    set_offroad_alert("Offroad_UnregisteredHardware", (dongle_id == UNREGISTERED_DONGLE_ID) and not PC)
+    return dongle_id
+
   # Create registration token, in the future, this key will make JWTs directly
   jwt_algo, private_key, public_key = get_key_pair()
 
